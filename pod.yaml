@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: url-watcher
+  namespace: default
+spec:
+  serviceAccountName: url-watcher
+  containers:
+  - name: url-watcher
+    image: f5star/url-watcher:latest
+    ports:
+    - containerPort: 3000
