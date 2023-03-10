@@ -34,7 +34,11 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 """
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S')
 logging.info('-----------Initializing OpenAPI URL watcher script-----------')
 
 def get_remote_md5_sum(url):
@@ -71,7 +75,7 @@ def reload():
     core_v1 = client.CoreV1Api()
     resp = None
     namespace = 'ingress'
-    field_selector = 'metadata.namespace=={namespace}'
+    field_selector = 'metadata.namespace==ingress'
 
     logging.info('Listing NGINX Ingress pods')
     ret = core_v1.list_pod_for_all_namespaces(field_selector=field_selector)
@@ -84,11 +88,11 @@ def reload():
                                                     namespace=namespace)
         except ApiException as e:
             if e.status != 404:
-                logging.error('Unknown error: %s' % e)
+                logging.info('Unknown error: %s' % e)
                 exit(1)
 
         if not resp:
-            logging.error('NGINX Ingress Pod %s does not exist' % name)
+            logging.info('NGINX Ingress Pod %s does not exist' % name)
 
         exec_command = [
             '/bin/sh',
