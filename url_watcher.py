@@ -111,11 +111,13 @@ def main():
     try:
         for item in policies_list['items']:
             policyname = item['metadata']['name']
-            url = item['spec']['policy']['open-api-files'][0]['link']
             logging.info('Policy name: ' + policyname)
-            if url == None:
+            url = None
+            try:
+                url = item['spec']['policy']['open-api-files'][0]['link']
+            except:
                 logging.info("Policy %s doesn't have OpenAPI URL reference. Skipping" % policyname)
-            else:
+            if url != None:
                 logging.info('Policy OpenAPI URL: ' + url)
                 new_hash = get_remote_md5_sum(url)
                 logging.info('OpenAPI ref sha256: ' + new_hash)
