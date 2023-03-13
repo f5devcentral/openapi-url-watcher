@@ -115,7 +115,7 @@ def main():
             url = None
             try:
                 url = item['spec']['policy']['open-api-files'][0]['link']
-            except:
+            except KeyError:
                 logging.info("Policy %s doesn't have OpenAPI URL reference. Skipping" % policyname)
             if url != None:
                 logging.info('Policy OpenAPI URL: ' + url)
