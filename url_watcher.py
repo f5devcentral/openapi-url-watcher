@@ -108,34 +108,37 @@ def main():
         group="appprotect.f5.com", version="v1beta1", plural="appolicies"
 )
     appolicies = json.dumps(policies_list)
-
-    for item in policies_list['items']:
-        policyname = item['metadata']['name']
-        url = item['spec']['policy']['open-api-files'][0]['link']
-        logging.info('Policy name: ' + policyname)
-        logging.info('Policy OpenAPI URL: ' + url)
-
-        new_hash = get_remote_md5_sum(url)
-        logging.info('OpenAPI ref sha256: ' + new_hash)
-        if os.path.exists(f'/var/tmp/$_{policyname}_.sha256'):
-           old_hash = open(f'/var/tmp/$_{policyname}_.sha256', "r")
-           oh = old_hash.readline()
-           logging.info('Old sha256: ' + oh)
-        else:
-           old_hash = open(f'/var/tmp/$_{policyname}_.sha256', "w+")
-           old_hash.write(new_hash)
-           old_hash.close()
-           old_hash = open(f'/var/tmp/$_{policyname}_.sha256', "r")
-           oh = old_hash.readline()
-        if new_hash != oh:
-           logging.info('External API reference ' + url + ' has changed! Reloading App Protect policy...')
-           reload()
-           old_hash.close()
-           os.remove(f'/var/tmp/$_{policyname}_.sha256')
-           f = open(f'/var/tmp/$_{policyname}_.sha256', "w+")
-           f.write(new_hash)
-           f.close()
-
+    try:
+        for item in policies_list['items']:
+            policyname = item['metadata']['name']
+            url = item['spec']['policy']['open-api-files'][0]['link']
+            logging.info('Policy name: ' + policyname)
+            if url == None:
+                logging.info("Policy %s doesn't have OpenAPI URL reference. Skipping" % policyname)
+            else:
+                logging.info('Policy OpenAPI URL: ' + url)
+                new_hash = get_remote_md5_sum(url)
+                logging.info('OpenAPI ref sha256: ' + new_hash)
+                if os.path.exists(f'/var/tmp/$_{policyname}_.sha256'):
+                    old_hash = open(f'/var/tmp/$_{policyname}_.sha256', "r")
+                    oh = old_hash.readline()
+                    logging.info('Old sha256: ' + oh)
+                else:
+                    old_hash = open(f'/var/tmp/$_{policyname}_.sha256', "w+")
+                    old_hash.write(new_hash)
+                    old_hash.close()
+                    old_hash = open(f'/var/tmp/$_{policyname}_.sha256', "r")
+                    oh = old_hash.readline()
+                if new_hash != oh:
+                    logging.info('External API reference ' + url + ' has changed! Reloading App Protect policy...')
+                    reload()
+                    old_hash.close()
+                    os.remove(f'/var/tmp/$_{policyname}_.sha256')
+                    f = open(f'/var/tmp/$_{policyname}_.sha256', "w+")
+                    f.write(new_hash)
+                    f.close()
+    except:
+        logging.info("Unable to get External OpenAPI URLs...")
 
 if __name__ == "__main__":
     while True:
