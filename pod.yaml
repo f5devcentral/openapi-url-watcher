@@ -8,5 +8,6 @@ spec:
   containers:
   - name: url-watcher
     image: f5star/url-watcher:latest
-    ports:
-    - containerPort: 3000
+    env:
+    - name: NS
+      value: "ingress"

@@ -26,25 +26,19 @@ from kubernetes.dynamic.exceptions import ResourceNotFoundError
 from kubernetes.client import api_client
 from kubernetes.client.rest import ApiException
 from kubernetes.stream import stream
-"""
-logging.basicConfig(
-    filename='/var/log/url_watcher.log',
-    filemode='a',
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
-"""
+
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
     format='%(asctime)s %(levelname)-8s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
-logging.info('-----------Initializing OpenAPI URL watcher script-----------')
+logging.info('-----------Initialized OpenAPI URL watcher script-----------')
 
 def get_remote_md5_sum(url):
     remote = urlopen(url)
-    return hash(remote)
+    getHash = hash(remote)
     remote.close()
+    return getHash
 
 def hash(remote):
 	max_file_size=100*1024*1024
@@ -74,8 +68,8 @@ def kube_config():
 def reload():
     core_v1 = client.CoreV1Api()
     resp = None
-    namespace = 'ingress'
-    field_selector = 'metadata.namespace==ingress'
+    namespace = os.environ.get('NS', 'ingress')
+    field_selector = 'metadata.namespace==' + namespace
 
     logging.info('Listing NGINX Ingress pods')
     ret = core_v1.list_pod_for_all_namespaces(field_selector=field_selector)
