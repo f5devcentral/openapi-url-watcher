@@ -9,21 +9,12 @@ on:
 
 jobs:
 
-  login:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: |
-          docker build . --file Dockerfile --tag f5star/openapi-url-watcher:latest
-          docker push f5star/openapi-url-watcher:latest
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub Registry
+        run: |
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            docker build . --file Dockerfile --tag f5star/openapi-url-watcher:latest
+            docker push f5star/openapi-url-watcher:latest
