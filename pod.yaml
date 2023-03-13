@@ -8,6 +8,7 @@ spec:
   containers:
   - name: url-watcher
     image: f5star/url-watcher:latest
+    imagePullPolicy: Always
     env:
     - name: NS
       value: "ingress"
